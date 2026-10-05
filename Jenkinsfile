@@ -53,7 +53,7 @@ pipeline {
         stage('Docker Container Test') {
             steps {
                 echo 'Starting temporary container for health testing...'
-
+	
                 sh '''
                     docker rm -f ${APP_NAME}-test 2>/dev/null || true
 
@@ -77,12 +77,12 @@ pipeline {
                 echo 'Deploying application to Kubernetes...'
 
                 sh '''
-                   minikube image load ${IMAGE_NAME}:latest
+                   docker save ${IMAGE_NAME}:latest | docker exec -i minikube ctr -n k8s.io images import -
 
                     kubectl apply -f k8s/deployment.yaml
                     kubectl apply -f k8s/service.yaml
 
-                    kubectl set image \
+                   kubectl set image \
                         deployment/${APP_NAME} \
                         ${APP_NAME}=${IMAGE_NAME}:latest
 
