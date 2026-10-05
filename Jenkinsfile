@@ -107,14 +107,16 @@ pipeline {
 
                 sh '''
                     kubectl get deployment cloudops-green
-                    kubectl get pods -l version=green
+
+                    kubectl get pods \
+                        -l version=green
 
                     GREEN_POD=$(kubectl get pod \
-                         -l version=green \
-                         -o jsonpath='{.items[0].metadata.name}')
+                        -l version=green \
+                        -o jsonpath='{.items[0].metadata.name}')
 
                     kubectl exec ${GREEN_POD} -- \
-                       python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
+                        python -c "import urllib.request; r=urllib.request.urlopen('http://localhost:5000/health'); print(r.read().decode())"
                 '''
             }
         }
@@ -137,10 +139,19 @@ pipeline {
                 sh '''
                     sleep 5
 
-                    curl --fail \
-                        http://$(minikube ip):30080/health
+                    echo "Service:"
+                    kubectl get service cloudops-dashboard-service
 
+                    echo "Production Endpoints:"
                     kubectl get endpoints cloudops-dashboard-service
+
+                    GREEN_POD=$(kubectl get pod \
+                        -l version=green \
+                        -o jsonpath='{.items[0].metadata.name}')
+
+                    echo "Green application health:"
+                    kubectl exec ${GREEN_POD} -- \
+                        python -c "import urllib.request; r=urllib.request.urlopen('http://localhost:5000/health'); print(r.read().decode())"
                 '''
             }
         }
