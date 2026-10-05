@@ -77,14 +77,14 @@ pipeline {
                 echo 'Deploying application to Kubernetes...'
 
                 sh '''
-                   minikube image load ${IMAGE_NAME}:${IMAGE_TAG}
+                   minikube image load ${IMAGE_NAME}:latest
 
                     kubectl apply -f k8s/deployment.yaml
                     kubectl apply -f k8s/service.yaml
 
                     kubectl set image \
                         deployment/${APP_NAME} \
-                        ${APP_NAME}=${IMAGE_NAME}:${IMAGE_TAG}
+                        ${APP_NAME}=${IMAGE_NAME}:latest
 
                     kubectl rollout status \
                         deployment/${APP_NAME} \
