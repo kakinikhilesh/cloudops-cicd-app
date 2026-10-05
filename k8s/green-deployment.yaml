@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: cloudops-green
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: cloudops-dashboard
+      version: green
+
+  template:
+    metadata:
+      labels:
+        app: cloudops-dashboard
+        version: green
+
+    spec:
+      containers:
+        - name: cloudops-dashboard
+
+          image: cloudops-dashboard:green
+
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 5000
+
+          env:
+            - name: APP_VERSION
+              value: "2.0.0"
+
+            - name: ENVIRONMENT
+              value: "Production"
+
+            - name: DEPLOYMENT_COLOR
+              value: "GREEN"
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+
+            initialDelaySeconds: 15
+            periodSeconds: 20

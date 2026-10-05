@@ -19,11 +19,12 @@ pipeline {
 
         stage('Application Test') {
             steps {
-                echo 'Installing dependencies and running application checks...'
+                echo 'Running application tests...'
 
                 sh '''
                     python3 -m venv test-venv
                     . test-venv/bin/activate
+
                     pip install --quiet -r requirements.txt
 
                     python3 -m py_compile app.py
@@ -44,7 +45,7 @@ pipeline {
                 sh '''
                     docker build \
                         -t ${IMAGE_NAME}:${IMAGE_TAG} \
-                        -t ${IMAGE_NAME}:latest \
+                        -t ${IMAGE_NAME}:green \
                         .
                 '''
             }
@@ -52,15 +53,18 @@ pipeline {
 
         stage('Docker Container Test') {
             steps {
-                echo 'Starting temporary container for health testing...'
-	
+                echo 'Testing Docker container health...'
+
                 sh '''
                     docker rm -f ${APP_NAME}-test 2>/dev/null || true
 
                     docker run -d \
                         --name ${APP_NAME}-test \
                         -p 5050:5000 \
-                        ${IMAGE_NAME}:${IMAGE_TAG}
+                        -e APP_VERSION=2.0.0 \
+                        -e DEPLOYMENT_COLOR=GREEN \
+                        -e ENVIRONMENT=Production \
+                        ${IMAGE_NAME}:green
 
                     sleep 5
 
@@ -72,56 +76,91 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Load Green Image into Minikube') {
             steps {
-                echo 'Deploying application to Kubernetes...'
+                echo 'Loading Green Docker image into Minikube...'
 
                 sh '''
-                   docker save ${IMAGE_NAME}:latest | docker exec -i minikube ctr -n k8s.io images import -
+                    docker save ${IMAGE_NAME}:green | \
+                    docker exec -i minikube ctr -n k8s.io images import -
+                '''
+            }
+        }
 
-                    kubectl apply -f k8s/deployment.yaml
-                    kubectl apply -f k8s/service.yaml
+        stage('Deploy Green Environment') {
+            steps {
+                echo 'Deploying Green environment...'
 
-                   kubectl set image \
-                        deployment/${APP_NAME} \
-                        ${APP_NAME}=${IMAGE_NAME}:latest
+                sh '''
+                    kubectl apply -f k8s/green-deployment.yaml
 
                     kubectl rollout status \
-                        deployment/${APP_NAME} \
+                        deployment/cloudops-green \
                         --timeout=120s
                 '''
             }
         }
 
-        stage('Verify Deployment') {
+        stage('Verify Green Environment') {
             steps {
-                echo 'Verifying Kubernetes deployment...'
+                echo 'Verifying Green environment health...'
 
                 sh '''
-                    kubectl get deployment ${APP_NAME}
-                    kubectl get pods -l app=${APP_NAME}
-                    kubectl get service ${APP_NAME}-service
+                    kubectl get deployment cloudops-green
+                    kubectl get pods -l version=green
 
-                    kubectl rollout status \
-                        deployment/${APP_NAME} \
-                        --timeout=120s
+                    GREEN_POD=$(kubectl get pod \
+                        -l version=green \
+                        -o jsonpath='{.items[0].metadata.name}')
+
+                    kubectl exec ${GREEN_POD} -- \
+                        curl --fail \
+                        http://localhost:5000/health
                 '''
             }
         }
+
+        stage('Switch Traffic to Green') {
+            steps {
+                echo 'Switching production traffic from Blue to Green...'
+
+                sh '''
+                    kubectl patch service cloudops-dashboard-service \
+                        -p '{"spec":{"selector":{"app":"cloudops-dashboard","version":"green"}}}'
+                '''
+            }
+        }
+
+        stage('Verify Production Traffic') {
+            steps {
+                echo 'Verifying production traffic is serving Green...'
+
+                sh '''
+                    sleep 5
+
+                    curl --fail \
+                        http://$(minikube ip):30080/health
+
+                    kubectl get endpoints cloudops-dashboard-service
+                '''
+            }
+        }
+
     }
 
     post {
 
         success {
             echo '========================================'
-            echo 'CI/CD PIPELINE COMPLETED SUCCESSFULLY'
+            echo 'BLUE-GREEN DEPLOYMENT SUCCESSFUL'
+            echo 'Production traffic is now on GREEN'
             echo '========================================'
         }
 
         failure {
             echo '========================================'
-            echo 'CI/CD PIPELINE FAILED'
-            echo 'Check the Jenkins console output.'
+            echo 'BLUE-GREEN DEPLOYMENT FAILED'
+            echo 'Production traffic was not switched'
             echo '========================================'
         }
 
