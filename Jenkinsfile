@@ -110,12 +110,11 @@ pipeline {
                     kubectl get pods -l version=green
 
                     GREEN_POD=$(kubectl get pod \
-                        -l version=green \
-                        -o jsonpath='{.items[0].metadata.name}')
+                         -l version=green \
+                         -o jsonpath='{.items[0].metadata.name}')
 
                     kubectl exec ${GREEN_POD} -- \
-                        curl --fail \
-                        http://localhost:5000/health
+                       python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
                 '''
             }
         }
