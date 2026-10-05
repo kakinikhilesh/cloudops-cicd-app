@@ -6,6 +6,7 @@ pipeline {
         APP_NAME = 'cloudops-dashboard'
         IMAGE_NAME = 'cloudops-dashboard'
         IMAGE_TAG = "${BUILD_NUMBER}"
+        SECURITY_VENV = '/var/lib/jenkins/security-venv'
     }
 
     stages {
@@ -16,6 +17,7 @@ pipeline {
                 checkout scm
             }
         }
+
 
         stage('Application Test') {
             steps {
@@ -31,12 +33,46 @@ pipeline {
 
                     test -f templates/index.html
                     test -f Dockerfile
+                    test -f SECURITY.md
 
                     deactivate
                     rm -rf test-venv
                 '''
             }
         }
+
+
+        stage('Dependency Security Scan') {
+            steps {
+                echo 'Scanning Python dependencies for known vulnerabilities...'
+
+                sh '''
+                    ${SECURITY_VENV}/bin/pip-audit \
+                        -r requirements.txt
+                '''
+            }
+        }
+
+
+        stage('Security Policy Validation') {
+            steps {
+                echo 'Validating DevSecOps security policy...'
+
+                sh '''
+                    test -f SECURITY.md
+
+                    grep -q "Source Code Security" SECURITY.md
+                    grep -q "Dependency Security" SECURITY.md
+                    grep -q "Container Security" SECURITY.md
+                    grep -q "Application Security" SECURITY.md
+                    grep -q "Kubernetes Security" SECURITY.md
+                    grep -q "Deployment Security" SECURITY.md
+
+                    echo "Security policy validation passed."
+                '''
+            }
+        }
+
 
         stage('Build Docker Image') {
             steps {
@@ -50,6 +86,7 @@ pipeline {
                 '''
             }
         }
+
 
         stage('Docker Container Test') {
             steps {
@@ -76,6 +113,7 @@ pipeline {
             }
         }
 
+
         stage('Load Green Image into Minikube') {
             steps {
                 echo 'Loading Green Docker image into Minikube...'
@@ -87,12 +125,14 @@ pipeline {
             }
         }
 
+
         stage('Deploy Green Environment') {
             steps {
                 echo 'Deploying Green environment...'
 
                 sh '''
-                    kubectl apply -f k8s/green-deployment.yaml
+                    kubectl apply \
+                        -f k8s/green-deployment.yaml
 
                     kubectl rollout status \
                         deployment/cloudops-green \
@@ -101,9 +141,10 @@ pipeline {
             }
         }
 
+
         stage('Verify Green Environment') {
             steps {
-                echo 'Verifying Green environment health...'
+                echo 'Verifying Green environment health and security...'
 
                 sh '''
                     kubectl get deployment cloudops-green
@@ -115,11 +156,16 @@ pipeline {
                         -l version=green \
                         -o jsonpath='{.items[0].metadata.name}')
 
+                    echo "Green application health:"
+
                     kubectl exec ${GREEN_POD} -- \
                         python -c "import urllib.request; r=urllib.request.urlopen('http://localhost:5000/health'); print(r.read().decode())"
+
+                    echo "Green environment verified successfully."
                 '''
             }
         }
+
 
         stage('Switch Traffic to Green') {
             steps {
@@ -131,6 +177,7 @@ pipeline {
                 '''
             }
         }
+
 
         stage('Verify Production Traffic') {
             steps {
@@ -150,28 +197,44 @@ pipeline {
                         -o jsonpath='{.items[0].metadata.name}')
 
                     echo "Green application health:"
+
                     kubectl exec ${GREEN_POD} -- \
                         python -c "import urllib.request; r=urllib.request.urlopen('http://localhost:5000/health'); print(r.read().decode())"
+
+                    echo "Production traffic verification passed."
                 '''
             }
         }
 
     }
 
+
     post {
 
         success {
-            echo '========================================'
-            echo 'BLUE-GREEN DEPLOYMENT SUCCESSFUL'
-            echo 'Production traffic is now on GREEN'
-            echo '========================================'
+            echo '''
+========================================
+DEVSECOPS PIPELINE SUCCESSFUL
+========================================
+Security validation passed.
+Dependency scan passed.
+Application tests passed.
+Container test passed.
+Green deployment passed.
+Production traffic switched successfully.
+========================================
+'''
         }
 
         failure {
-            echo '========================================'
-            echo 'BLUE-GREEN DEPLOYMENT FAILED'
-            echo 'Production traffic was not switched'
-            echo '========================================'
+            echo '''
+========================================
+DEVSECOPS PIPELINE FAILED
+========================================
+A security or deployment validation failed.
+Production deployment must be reviewed.
+========================================
+'''
         }
 
         always {
