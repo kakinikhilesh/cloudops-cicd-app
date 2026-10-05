@@ -7,6 +7,7 @@ app = Flask(__name__)
 
 APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
 ENVIRONMENT = os.getenv("ENVIRONMENT", "Development")
+DEPLOYMENT_COLOR = os.getenv("DEPLOYMENT_COLOR", "BLUE")
 
 
 @app.route("/")
@@ -15,7 +16,8 @@ def home():
         "index.html",
         version=APP_VERSION,
         environment=ENVIRONMENT,
-        hostname=socket.gethostname()
+        hostname=socket.gethostname(),
+        deployment_color=DEPLOYMENT_COLOR
     )
 
 
@@ -25,6 +27,7 @@ def health():
         "status": "healthy",
         "application": "CloudOps Dashboard",
         "version": APP_VERSION,
+        "deployment_color": DEPLOYMENT_COLOR,
         "timestamp": datetime.utcnow().isoformat() + "Z"
     })
 
@@ -36,7 +39,8 @@ def info():
         "version": APP_VERSION,
         "environment": ENVIRONMENT,
         "hostname": socket.gethostname(),
-        "platform": "Kubernetes"
+        "platform": "Kubernetes",
+        "deployment_color": DEPLOYMENT_COLOR
     })
 
 

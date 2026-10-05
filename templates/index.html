@@ -8,147 +8,270 @@
 
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: Arial, Helvetica, sans-serif;
             background: #0f172a;
-            color: #e2e8f0;
+            color: #f8fafc;
             min-height: 100vh;
         }
 
-        .header {
-            background: #111827;
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        /* Header */
+
+        header {
+            padding: 25px 0;
             border-bottom: 1px solid #334155;
-            padding: 20px 8%;
+        }
+
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .logo {
-            font-size: 22px;
-            font-weight: bold;
-        }
-
-        .badge {
-            background: #064e3b;
-            color: #6ee7b7;
-            padding: 7px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-        }
-
-        .container {
-            width: 84%;
-            max-width: 1100px;
-            margin: 60px auto;
-        }
-
-        .hero {
-            margin-bottom: 40px;
-        }
-
-        .hero h1 {
-            font-size: 46px;
-            margin-bottom: 15px;
-        }
-
-        .hero p {
-            color: #94a3b8;
-            font-size: 18px;
-            line-height: 1.6;
-            max-width: 700px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .card {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 14px;
-            padding: 25px;
-        }
-
-        .card h3 {
-            margin-bottom: 12px;
-            color: #cbd5e1;
-        }
-
-        .value {
-            font-size: 25px;
-            font-weight: bold;
-            color: #38bdf8;
+            font-size: 24px;
+            font-weight: 700;
         }
 
         .status {
-            color: #4ade80;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            background: #064e3b;
+            color: #6ee7b7;
+            font-size: 13px;
+            font-weight: 600;
         }
 
-        .pipeline {
-            margin-top: 35px;
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #34d399;
+        }
+
+        /* Hero */
+
+        .hero {
+            padding: 70px 0 45px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            line-height: 1.1;
+            margin-bottom: 18px;
+        }
+
+        .hero p {
+            max-width: 720px;
+            color: #94a3b8;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        /* Deployment indicator */
+
+        .release-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            margin-top: 22px;
+            padding: 10px 16px;
+            border-radius: 20px;
+            background: #1e293b;
+            border: 1px solid #475569;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .release-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Information cards */
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin: 20px 0 50px;
+        }
+
+        .info-card {
             background: #1e293b;
             border: 1px solid #334155;
             border-radius: 14px;
-            padding: 30px;
+            padding: 24px;
+            transition: transform 0.2s ease;
         }
 
-        .pipeline h2 {
-            margin-bottom: 25px;
+        .info-card:hover {
+            transform: translateY(-3px);
         }
 
-        .steps {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .step {
-            flex: 1;
-            min-width: 130px;
-            text-align: center;
-            padding: 18px;
-            background: #0f172a;
-            border-radius: 10px;
-            border: 1px solid #334155;
-        }
-
-        .step strong {
-            display: block;
-            margin-bottom: 7px;
-        }
-
-        .step span {
+        .info-label {
             color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .info-value {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .info-subtitle {
+            color: #64748b;
             font-size: 13px;
         }
 
-        .footer {
-            text-align: center;
-            color: #64748b;
-            margin-top: 50px;
-            padding-bottom: 30px;
+        /* Pipeline */
+
+        .section-title {
+            font-size: 25px;
+            margin-bottom: 20px;
         }
 
-        @media (max-width: 800px) {
-            .grid {
+        .pipeline {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 50px;
+        }
+
+        .pipeline-step {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 18px 12px;
+            text-align: center;
+        }
+
+        .step-number {
+            display: inline-flex;
+            width: 30px;
+            height: 30px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #334155;
+            margin-bottom: 10px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .step-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        /* Blue Green section */
+
+        .deployment-section {
+            background: #111827;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 50px;
+        }
+
+        .deployment-section p {
+            color: #94a3b8;
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+
+        .deployment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .deployment-box {
+            padding: 25px;
+            border-radius: 14px;
+            border: 1px solid #334155;
+            background: #1e293b;
+        }
+
+        .deployment-box h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .deployment-box p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .blue-label {
+            color: #60a5fa;
+        }
+
+        .green-label {
+            color: #4ade80;
+        }
+
+        /* Footer */
+
+        footer {
+            border-top: 1px solid #334155;
+            padding: 25px 0;
+            color: #64748b;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 900px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pipeline {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .cards,
+            .deployment-grid {
                 grid-template-columns: 1fr;
             }
 
-            .hero h1 {
-                font-size: 34px;
+            .pipeline {
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            .container {
-                width: 90%;
+            .header-content {
+                gap: 15px;
+                align-items: flex-start;
+                flex-direction: column;
             }
         }
     </style>
@@ -156,102 +279,269 @@
 
 <body>
 
-<header class="header">
-    <div class="logo">CloudOps Dashboard</div>
-    <div class="badge">● System Operational</div>
-</header>
+    <header>
+        <div class="container">
+            <div class="header-content">
 
-<main class="container">
+                <div class="logo">
+                    CloudOps Dashboard
+                </div>
 
-    <section class="hero">
-        <h1>Cloud Deployment Platform</h1>
+                <div class="status">
+                    <span class="status-dot"></span>
+                    System Operational
+                </div>
 
-        <p>
-            A containerized cloud application demonstrating
-            automated CI/CD, Kubernetes deployment,
-            blue-green releases, and DevSecOps practices.
-        </p>
-    </section>
-
-    <section class="grid">
-
-        <div class="card">
-            <h3>Application Status</h3>
-            <div class="value status">Healthy</div>
+            </div>
         </div>
+    </header>
 
-        <div class="card">
-            <h3>Version</h3>
-            <div class="value">{{ version }}</div>
-        </div>
 
-        <div class="card">
-            <h3>Environment</h3>
-            <div class="value">{{ environment }}</div>
-        </div>
+    <main class="container">
 
-        <div class="card">
-            <h3>Platform</h3>
-            <div class="value">Kubernetes</div>
-        </div>
+        <!-- Hero -->
 
-        <div class="card">
-            <h3>Container Host</h3>
-            <div class="value">{{ hostname }}</div>
-        </div>
+        <section class="hero">
 
-        <div class="card">
-            <h3>Deployment</h3>
-            <div class="value">Automated</div>
-        </div>
+            <h1>
+                Cloud Deployment Platform
+            </h1>
 
-    </section>
+            <p>
+                A production-style cloud application demonstrating
+                automated CI/CD, Docker containerization, Kubernetes
+                orchestration, blue-green deployments, and reliable
+                application delivery.
+            </p>
 
-    <section class="pipeline">
-
-        <h2>CI/CD Pipeline</h2>
-
-        <div class="steps">
-
-            <div class="step">
-                <strong>01</strong>
-                <span>Source Code</span>
+            <div class="release-indicator">
+                <span class="release-dot"></span>
+                {{ deployment_color }} Deployment
             </div>
 
-            <div class="step">
-                <strong>02</strong>
-                <span>Jenkins</span>
+        </section>
+
+
+        <!-- Application Information -->
+
+        <section>
+
+            <h2 class="section-title">
+                Application Information
+            </h2>
+
+            <div class="cards">
+
+                <div class="info-card">
+                    <div class="info-label">
+                        Application Status
+                    </div>
+
+                    <div class="info-value">
+                        Healthy
+                    </div>
+
+                    <div class="info-subtitle">
+                        Health checks passing
+                    </div>
+                </div>
+
+
+                <div class="info-card">
+                    <div class="info-label">
+                        Version
+                    </div>
+
+                    <div class="info-value">
+                        {{ version }}
+                    </div>
+
+                    <div class="info-subtitle">
+                        Current application release
+                    </div>
+                </div>
+
+
+                <div class="info-card">
+                    <div class="info-label">
+                        Environment
+                    </div>
+
+                    <div class="info-value">
+                        {{ environment }}
+                    </div>
+
+                    <div class="info-subtitle">
+                        Kubernetes environment
+                    </div>
+                </div>
+
+
+                <div class="info-card">
+                    <div class="info-label">
+                        Platform
+                    </div>
+
+                    <div class="info-value">
+                        Kubernetes
+                    </div>
+
+                    <div class="info-subtitle">
+                        Container orchestration
+                    </div>
+                </div>
+
+
+                <div class="info-card">
+                    <div class="info-label">
+                        Container Host
+                    </div>
+
+                    <div class="info-value">
+                        {{ hostname }}
+                    </div>
+
+                    <div class="info-subtitle">
+                        Active Kubernetes pod
+                    </div>
+                </div>
+
+
+                <div class="info-card">
+                    <div class="info-label">
+                        Deployment
+                    </div>
+
+                    <div class="info-value">
+                        {{ deployment_color }}
+                    </div>
+
+                    <div class="info-subtitle">
+                        Blue-Green Release
+                    </div>
+                </div>
+
             </div>
 
-            <div class="step">
-                <strong>03</strong>
-                <span>Docker Build</span>
+        </section>
+
+
+        <!-- CI/CD Pipeline -->
+
+        <section>
+
+            <h2 class="section-title">
+                CI/CD Pipeline
+            </h2>
+
+            <div class="pipeline">
+
+                <div class="pipeline-step">
+                    <div class="step-number">1</div>
+                    <div class="step-name">
+                        Source Code
+                    </div>
+                </div>
+
+                <div class="pipeline-step">
+                    <div class="step-number">2</div>
+                    <div class="step-name">
+                        Jenkins
+                    </div>
+                </div>
+
+                <div class="pipeline-step">
+                    <div class="step-number">3</div>
+                    <div class="step-name">
+                        Docker Build
+                    </div>
+                </div>
+
+                <div class="pipeline-step">
+                    <div class="step-number">4</div>
+                    <div class="step-name">
+                        Health Test
+                    </div>
+                </div>
+
+                <div class="pipeline-step">
+                    <div class="step-number">5</div>
+                    <div class="step-name">
+                        Kubernetes
+                    </div>
+                </div>
+
+                <div class="pipeline-step">
+                    <div class="step-number">6</div>
+                    <div class="step-name">
+                        Production
+                    </div>
+                </div>
+
             </div>
 
-            <div class="step">
-                <strong>04</strong>
-                <span>Security Scan</span>
+        </section>
+
+
+        <!-- Blue Green Deployment -->
+
+        <section class="deployment-section">
+
+            <h2 class="section-title">
+                Blue-Green Deployment
+            </h2>
+
+            <p>
+                The application supports zero-downtime deployment by
+                maintaining two independent application environments.
+                Jenkins deploys the new release to the inactive environment,
+                verifies its health, and then switches production traffic
+                to the new release.
+            </p>
+
+            <div class="deployment-grid">
+
+                <div class="deployment-box">
+
+                    <h3 class="blue-label">
+                        BLUE
+                    </h3>
+
+                    <p>
+                        Stable production environment currently serving
+                        application traffic.
+                    </p>
+
+                </div>
+
+
+                <div class="deployment-box">
+
+                    <h3 class="green-label">
+                        GREEN
+                    </h3>
+
+                    <p>
+                        New application release prepared and tested before
+                        receiving production traffic.
+                    </p>
+
+                </div>
+
             </div>
 
-            <div class="step">
-                <strong>05</strong>
-                <span>Kubernetes</span>
-            </div>
+        </section>
 
-            <div class="step">
-                <strong>06</strong>
-                <span>Production</span>
-            </div>
+    </main>
 
-        </div>
 
-    </section>
+    <footer>
 
-    <div class="footer">
-        CloudOps CI/CD Laboratory Project
-    </div>
+        CloudOps Dashboard &nbsp;|&nbsp;
+        Automated DevOps Platform &nbsp;|&nbsp;
+        Kubernetes
 
-</main>
+    </footer>
 
 </body>
 </html>
